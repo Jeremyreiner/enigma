@@ -26,7 +26,7 @@ class RoterObject:
             'II': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
             'III': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
         }
-        
+
         # steps 0 & 1
         if wiring[model_name] == wiring['I']:
             self.wiring = wiring[model_name]
@@ -34,7 +34,6 @@ class RoterObject:
                 self.letter_values[v] = i
                 self.position_values[i] = v
                 self.letters += ''.join(v)
-            
         # steps 0 & 1
         elif wiring[model_name] == wiring['II']:
             self.wiring = wiring[model_name]
@@ -53,14 +52,11 @@ class RoterObject:
         else:
             print("The wiring model name was entered incorrectly. Please Enter a correct Model. ex: 'I', 'II' or 'III'")
             return False
-
         # step 2
-
         if ring_setting == str(ring_setting):
             if ring_setting in self.letter_values:
                 ring_setting = self.letter_values[ring_setting]
                 self.ring_setting = ring_setting
-        
         else:
             ring_setting
             if 0 <= int(ring_setting) <= 25:
@@ -89,7 +85,6 @@ class RoterObject:
         '''
         returns the rotors visible position
         '''
-        # letter = self.config_letter
         return self.config_letter
 
     def signal_from_right(self, num_contact):
@@ -126,7 +121,6 @@ class RoterObject:
         else:
             print("Your signal value seems to be out of the expected range. Re-calculate your signal")
 
-
     def step_notch(self):
         '''
         If a stepping position is given, return True
@@ -137,26 +131,25 @@ class RoterObject:
         else: 
             return True
     
-    
     def rotate(self):
         '''
         Rotates the rotor forward.
         '''
         self.rotation += 1
         view = self.get_display()
-        if view == str(view):
+        if view == str(view) and view != '':
             rotate_value= self.letter_values[view]
             rotate_value += 1
             new_view = self.set_display(rotate_value)
-            print(f"I just rotated, I have {self.rotation} total rotations")
+            print(f"{self.model_name} just rotated, I have {self.rotation} total rotations. View:{new_view}")
         else: 
-            # letter_value = self.position_values[view]
-            # rotate_value = self.letter_values[letter_value]
-            # rotate_value += 1
-            view += 1
-            new_view = self.set_display(view)
-            print(f"I just rotated, I have {self.rotation} total rotations")
-
+            if view == '':
+                view += '1'
+                num = int(view)
+            else:
+                view+=1
+            new_view = self.set_display(num)
+            print(f"{self.model_name} just rotated, I have {self.rotation} total rotations. View:{new_view}")
         return new_view # returns int
 
     def letters_to_nums(self):
@@ -176,30 +169,12 @@ class RoterObject:
         context = f'''
                 {self.model_name} 
                 '''
-                ## For developing perposes
-                # Rotor Model: {self.model_name} 
-                # Rotor Wiring: {self.letters} 
-                # Rotor Ring Settings: {self.ring_setting} 
-                # Rotor Stepping: {self.stepping}
+        ## For developing perposes
+        print(f'''Rotor Model: {self.model_name} 
+        Rotor Wiring: {self.letters} 
+        Rotor Ring Settings: {self.ring_setting} 
+        Rotor Stepping: {self.stepping}''')
         return context
-
-
-# r3 = RoterObject('III', '5', 'D')
-
-# set = r3.set_display(17)
-# get = r3.get_display()
-# sig_in = r3.signal_from_right(12)
-# sig_out = r3.signal_from_left(12)
-# notch = r3.step_notch()
-# rotate = r3.rotate()
-
-# print(r3)
-# print(sig_in)
-# print(sig_out)
-# print(set)
-# print(get)
-# print(rotate)
-
 
 
 class ReflectorObject:
@@ -216,35 +191,29 @@ class ReflectorObject:
     def __init__(self, model_name, ring_setting=0, stepping=None):
         self.model_name = model_name
         self.ring_setting = ring_setting
-
         self.letters = ''
         self.letter_values = {}
-
         #step 0, 1
         reflecter_wiring = {
             'B': 'FVPJIAOYEDRZXWGCTKUQSBNMHL',
             'C':'BQPAIUOYEDXZRWCGTKJVSMFNHL'
         }
-
         #step 0, 1
         if reflecter_wiring[model_name] == reflecter_wiring['B']:
             self.wiring = reflecter_wiring[model_name]
             for i,v in enumerate(reflecter_wiring[model_name]):
                 self.letter_values[v] = i
                 self.letters += ''.join(v)
-
         #step 0, 1
         elif reflecter_wiring[model_name] == reflecter_wiring['C']:
             self.wiring = reflecter_wiring[model_name]
             for i,v in enumerate(reflecter_wiring[model_name]):
                 self.letter_values[v] = i
                 self.letters += ''.join(v)
-
         # if steps 0 & 1 failed model name and or wiring was misenterred/ misconfigured
         else:
             print("The wiring model name was entered incorrectly. Please Enter a correct Model. ex: 'B' or 'C'")
             return False
-
         # step 2
         if int(ring_setting) > 25:
             print("The Ring setting must be a number between 0 - 25")
@@ -259,15 +228,12 @@ class ReflectorObject:
         context = f'''
                 {self.model_name} 
                 '''
-                ## For developing perposes
-                # Reflector Model: {self.model_name} 
-                # Reflector Wiring: {self.letters} 
-                # Reflector Ring Settings: {self.ring_setting} 
-                # Reflector Stepping: {self.stepping}
+        # For developing perposes
+        print(f'''Reflector Model: {self.model_name} 
+        Reflector Wiring: {self.letters} 
+        Reflector Ring Settings: {self.ring_setting} 
+        Reflector Stepping: {self.stepping}''')
         return context
-
-# r1 = ReflectorObject('B', '12')
-# r2 = ReflectorObject('C', '7', 'J')
 
 
 class PlugBoardObject(RoterObject):
@@ -289,16 +255,12 @@ class PlugBoardObject(RoterObject):
     TODO: NEED TO CONFIGURE USING INHERITENCE ON ROTOR VALUES
     '''
     def __init__(self, wire_pairings):
-
         self.keys = ''
         self.signal_to = ''
         self.signal_from = ''
         self.plug_directons = {}
-        
 
-
-
-        #TODO
+        # #TODO
         # self.letter_values = RoterObject.letters_to_nums
         # self.position_values = RoterObject.nums_to_letters
         self.letter_values = {
@@ -438,7 +400,7 @@ class PlugBoardObject(RoterObject):
                         Plug Switch Value: {index_value}
                         '''
             ## For Developing Purposes
-            # print(context)
+            print(context)
             return self.signal
         else:
             print("Your signal value seems to be out of the expected range. Re-calculate your signal")
@@ -451,18 +413,9 @@ class PlugBoardObject(RoterObject):
         context = f'''
                 PlugBoard Pairs: {self.wiring_pairs} 
                 '''
-                ## For Developing Purposes
-                # PlugBoard Pairs: {self.wiring_pairs} 
-                # PlugBoard Pairing To: {self.signal_to} 
-                # PlugBoard Pairing From: {self.signal_from} 
-                # PlugBoard keys: {self.keys} 
+        ## For Developing Purposes
+        print(f'''PlugBoard Pairs: {self.wiring_pairs} 
+        PlugBoard Pairing To: {self.signal_to} 
+        PlugBoard Pairing From: {self.signal_from} 
+        PlugBoard keys: {self.keys} ''')
         return context
-
-def indx_zero(x):
-    if x > 25:
-        x = 0
-    return x
-# pairs =  'AS DF GH JK LP QW ER TY UI ZX'
-# list = ['AS','DF','GH','JK','QW','ER','TY','UI','ZX']
-# p = PlugBoardObject(pairs)
-# p.signal(3)
