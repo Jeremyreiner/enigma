@@ -179,28 +179,31 @@ class Enigma_machine:
         
         after_reflect_letter = rotorR.position_values[reflect_pin] #Dev purposes
         #step 5
+        rotorR.rotate()
         rR_sr = rotorR.signal_from_right(reflect_pin)
         rR_sl = rotorR.signal_from_left(rR_sr)
         #step 6
+        rotorR.rotate()
         rM_sr = rotorM.signal_from_right(rR_sl)
         rM_sl = rotorM.signal_from_left(rM_sr)
         # step 7
+        rotorL.rotate()
         rL_sr = rotorL.signal_from_right(rM_sl)
         rL_sl = rotorL.signal_from_left(rL_sr)
 
         encrypted_letter = rotorL.position_values[rL_sl] 
         
         context = {'''
-            print(f"{key} was converted to {initial_input} inside of the left wheel")
-            print(f"The signal ENTERING wheel {self.rotorL} was {rL_sl} and LEAVING: {rL_sr}")
-            print(f"The signal ENTERING wheel {self.rotorM} was {rM_sl} and LEAVING: {rM_sr}")
-            print(f"The signal ENTERING wheel {self.rotorR} was {rR_sl} and LEAVING: {rR_sr}. The letter BEFORE reflector: {b4_reflect_letter}")
-            print(f" The signal LEAVING reflector {self.reflector} was {reflect_pin}. The letter AFTER reflector: {after_reflect_letter}")
-            print(f"{self.rotorR} recieved the signal {rR_sr} from reflecter pin and sent {rR_sl} to the left ")
-            print(f"{self.rotorM} recieved the signal {rM_sr} from the right and sent {rM_sl} to the left ")
-            print(f"{self.rotorL} recieved the signal {rL_sr} from the right and sent {rL_sl} to the left ")
-            print(f"We began at {key} and ENCRYPTION value is: {encrypted_letter}")
+        print(f"{key} was converted to {initial_input} inside of the left wheel")
+        print(f"The signal ENTERING wheel {self.rotorL} was {rL_sl} and LEAVING: {rL_sr}. Letter = {rotorL.position_values[rL_sl]}")
+        print(f"The signal ENTERING wheel {self.rotorM} was {rM_sl} and LEAVING: {rM_sr}. Letter = {rotorM.position_values[rM_sr]}")
+        print(f"The signal ENTERING wheel {self.rotorR} was {rR_sl} and LEAVING: {rR_sr}. The letter BEFORE reflector: {b4_reflect_letter}")
+        print(f" The signal LEAVING reflector {self.reflector} was {reflect_pin}. The letter AFTER reflector: {after_reflect_letter}")
+        print(f"{self.rotorR} recieved the signal {rR_sr} from reflecter pin and sent {rR_sl} to the left. Letter = {rotorR.position_values[rR_sl]} ")
+        print(f"{self.rotorM} recieved the signal {rM_sr} from the right and sent {rM_sl} to the left. Letter = {rotorM.position_values[rM_sl]}")
+        print(f"{self.rotorL} recieved the signal {rL_sr} from the right and sent {rL_sl} to the left. Letter = {rotorL.position_values[rL_sl]} ")
         '''}
+        print(f"We began at {key} and ENCRYPTION value is: {encrypted_letter}")
         return encrypted_letter
 
     def process_txt(self,text, replace_char = 'YY') -> str:
@@ -256,16 +259,17 @@ e.set_display('WXC') # set initial rotor positions
 enc_key = e.process_txt('BLU') # encrypt message key
 print(f"Encrypt Display key : {enc_key}")
 
-e.set_display('BLU') # use message key BLA
-print('ENCRYPTING text...')
-ciphertext = e.process_txt('THE RUSSIANS ARE COMING!')
-print(ciphertext)
+# e.set_display('BLU') # use message key BLA
+# print('ENCRYPTING text...')
+# ciphertext = e.process_txt('THE RUSSIANS ARE COMING!')
+# print(ciphertext)
 
 print('Configuring Enigma...')
 print("Recieving from: ")
 e.set_display('WXC')
-msg_key = e.process_txt('DXX')
-e.set_display(msg_key) # original message key is BLA
-print("DECRYPTING text...")
-plaintext = e.process_txt('SDOYYEXLLNCELYYCEOYYSVDNELYY')
-print(plaintext)
+msg_key = e.process_txt('BLU')
+print(f"Encrypt Display key : {msg_key}")
+# e.set_display(msg_key) # original message key is BLA
+# print("DECRYPTING text...")
+# plaintext = e.process_txt('SDOYYEXLLNCELYYCEOYYSVDNELYY')
+# print(plaintext)

@@ -141,15 +141,9 @@ class RoterObject:
             rotate_value= self.letter_values[view]
             rotate_value += 1
             new_view = self.set_display(rotate_value)
-            print(f"{self.model_name} just rotated, I have {self.rotation} total rotations. View:{new_view}")
+            print(f"Rotor: {self.model_name} just rotated, I have {self.rotation} total rotations. View is now: {new_view}")
             return new_view 
         else: 
-            # if view == '':
-            #     view += '1'
-            #     num = int(view)
-            # else:
-            #     view+=1
-            # new_view = self.set_display(num)
             print(f'Something whent wrong in your rotations. There is no current rotater value visable. on {self.model_name}')
 
     def __str__(self):
