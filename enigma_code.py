@@ -1,5 +1,5 @@
 from pyexpat import model
-from rotor_plugboard import RoterObject, ReflectorObject, PlugBoardObject
+from rotor_plugboard import RoterObject, ReflectorObject, PlugBoardObject, indx_zero
 
 class Enigma_machine:
     def __init__(self, rotor1, rotor2, rotor3, reflector_config, plugboard_config):
@@ -91,19 +91,19 @@ class Enigma_machine:
         establishes a new starting position for a subsequent
         encrypt or decrypt operation
         '''
-        self.ringsetting_rotorL, self.ringsetting_rotorM, self.ringsetting_rotorR = l,m,r
-        r1, r2, r3 = self.rotorL, self.rotorM, self.rotorR
+        rotorL.rotation,rotorM.rotation, rotorR.rotation = 0,0,0
 
-        r1 = RoterObject(self.rotorL, self.ringsetting_rotorL)
-        r2 = RoterObject(self.rotorM, self.ringsetting_rotorM)
-        r3 = RoterObject(self.rotorR, self.ringsetting_rotorR)
+        # rotorL.config_letter = ''
+        # rotorM.config_letter = ''
+        # rotorR.config_letter = ''
 
-        r1.rotation,r2.rotation, r3.rotation = 0,0,0
-        r1.config_letter, r2.config_letter, r3.config_letter = l,m,r
+        rotorL.config_letter = str(l)
+        rotorM.config_letter = str(m)
+        rotorR.config_letter = str(r)
 
         context = f'''
                 The rotors have been set to positions: 
-                [{self.ringsetting_rotorL} {self.ringsetting_rotorM} {self.ringsetting_rotorR}]
+                [{rotorL.config_letter} {rotorM.config_letter} {rotorR.config_letter}]
         '''
         print(context)
         return context
@@ -112,9 +112,14 @@ class Enigma_machine:
         '''
         returns the current position of the rotors as a string
         '''
+
+        left = rotorL.config_letter
+        mid = rotorM.config_letter
+        right = rotorR.config_letter
+
         context = f'''
                 The rotors are currently in positions: 
-                [{self.ringsetting_rotorL} {self.ringsetting_rotorM} {self.ringsetting_rotorR}]
+                [{left} {mid} {right}]
         '''
         print(context)
         return context
@@ -123,8 +128,20 @@ class Enigma_machine:
         '''
         Returns a list of integers that represent the rotation counts for each rotor.
         '''
-        pass
+        l = rotorL.rotation
+        m = rotorM.rotation
+        r = rotorR.rotation
         
+        list = [l,m,r]
+        context = f'''
+            Left Roter Rotations: {rotorL.rotation}
+            Middle Roter Rotations: {rotorM.rotation}
+            Right Roter Rotations: {rotorR.rotation}
+        '''
+        print(context)
+        return list
+
+
     def key_press(self, key):
         '''
         First the rotors are stepped by simulating the mechanical action of the
@@ -136,26 +153,30 @@ class Enigma_machine:
         letter_values3 = rotorR.letter_values
 
         self.l_value_of_key1, self.l_value_of_key2, self.l_value_of_key3  = 0,0,0
-        
-        rotorL.rotate
-
-        print(rotorL.rotation)
 
         if key in letter_values1:
-            self.l_value_of_key1 += (letter_values1[key] + 1)
+            self.l_value_of_key1 += (letter_values1[key] + 1) #letter returns a number
+            if self.l_value_of_key1 > 25:
+                self.l_value_of_key1 = 0
             if key == rotorL.stepping:
-                rotorM.rotate
-            rotorL.rotate
+                rotorM.rotate()
+            rotorL.rotate()
+
         if key in letter_values2:
-            self.l_value_of_key2 += (letter_values2[key] + 1)
+            self.l_value_of_key2 += (letter_values2[key] + 1) 
+            if self.l_value_of_key2 > 25:
+                self.l_value_of_key2 = 0
             if key == rotorM.stepping:
-                rotorR.rotate
-            rotorM.rotate
+                rotorR.rotate()
+            rotorM.rotate()
+
         if key in letter_values3:
             self.l_value_of_key3 += (letter_values3[key]+ 1)
+            if self.l_value_of_key3 > 25:
+                self.l_value_of_key3 = 0
             if key == rotorR.stepping:
-                rotorL.rotate
-            rotorR.rotate
+                rotorL.rotate()
+            rotorR.rotate()
         
         print(self.l_value_of_key1, self.l_value_of_key2, self.l_value_of_key3)
 
@@ -212,13 +233,20 @@ file = machine.update_from_file('my_enigma_keys.txt')
 print("Machine AFTER file")
 print(machine)
 
-machine.get_display()
 machine.set_display("L", 'O', 'F')
 machine.get_display()
 
+key_press = machine.key_press('H')
+rotations = machine.count_rotors()
+key_press = machine.key_press('E')
 key_press = machine.key_press('L')
+key_press = machine.key_press('L')
+key_press = machine.key_press('O')
 
 
+machine.set_display("E", 'J', 'I')
+
+rotations = machine.count_rotors()
 
 # def encrypt_enigma(ui):
 #     machine = EnigmaMachine.from_key_sheet(

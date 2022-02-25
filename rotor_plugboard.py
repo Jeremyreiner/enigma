@@ -6,8 +6,8 @@ class RoterObject:
         self.config_letter = ''
         self.config_num = ''
         self.letters = ''
-        self.letter_values= {}
-        self.position_values = {}
+        self.letter_values= {} #letter returns a number
+        self.position_values = {} #number returns a letter
         self.rotation = 0
         '''
         step 0: model_name: (string) ex; 'I', 'II', 'III'
@@ -73,17 +73,24 @@ class RoterObject:
         '''
         Set the rotator to a specific position
         '''
-        number = self.letter_values[rotar_position]
-        letter = self.position_values[number]
-        self.config_letter = letter
-        return letter
+        self.config_letter = ''
+        if rotar_position > 25:
+            rotar_position = 0
+
+        if rotar_position == int(rotar_position):
+            letter = self.position_values[rotar_position]
+            self.config_letter += letter
+            return self.config_letter
+        else:
+            self.config_letter += rotar_position
+            return self.config_letter
 
     def get_display(self):
         '''
         returns the rotors visible position
         '''
-        letter = self.config_letter
-        return letter
+        # letter = self.config_letter
+        return self.config_letter
 
     def signal_from_right(self, num_contact):
         '''
@@ -136,12 +143,21 @@ class RoterObject:
         Rotates the rotor forward.
         '''
         self.rotation += 1
-        view = self.get_display
-        rotation = view + 1
-        new_view = self.set_display(rotation)
-        print(f"I just rotated, I have {self.rotation} total rotations")
+        view = self.get_display()
+        if view == str(view):
+            rotate_value= self.letter_values[view]
+            rotate_value += 1
+            new_view = self.set_display(rotate_value)
+            print(f"I just rotated, I have {self.rotation} total rotations")
+        else: 
+            # letter_value = self.position_values[view]
+            # rotate_value = self.letter_values[letter_value]
+            # rotate_value += 1
+            view += 1
+            new_view = self.set_display(view)
+            print(f"I just rotated, I have {self.rotation} total rotations")
 
-        return new_view
+        return new_view # returns int
 
     def letters_to_nums(self):
         def __dict__(self):
@@ -442,6 +458,10 @@ class PlugBoardObject(RoterObject):
                 # PlugBoard keys: {self.keys} 
         return context
 
+def indx_zero(x):
+    if x > 25:
+        x = 0
+    return x
 # pairs =  'AS DF GH JK LP QW ER TY UI ZX'
 # list = ['AS','DF','GH','JK','QW','ER','TY','UI','ZX']
 # p = PlugBoardObject(pairs)
