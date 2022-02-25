@@ -11,7 +11,7 @@ class Enigma_machine:
         self.plug_board = plugboard_config
         self.configs = ''
     
-    def update_from_file(self, file):
+    def update_from_file(self, file) -> str:
         '''
         update machine with inbound encrypted messege
         '''
@@ -75,6 +75,8 @@ class Enigma_machine:
         
         #step 2
         context = f'''
+                DECRYPTING TRANSMITION:
+
                 Date: {self.day}
                 Left, Middle, Right Rotors: {self.rotorL} {self.rotorL} {self.rotorL}
                 Ring Set LMR Rotors: {self.ringsetting_rotorL} {self.ringsetting_rotorM} {self.ringsetting_rotorR}
@@ -84,18 +86,22 @@ class Enigma_machine:
         #step 3
         self.configs += context
         f.close()
+        print(self.configs)
         return self.configs
         
-    def set_display(self, l, m, r):
+    def set_display(self, x) -> str:
         '''
         establishes a new starting position for a subsequent
         encrypt or decrypt operation
         '''
         rotorL.rotation,rotorM.rotation, rotorR.rotation = 0,0,0
-
-        # rotorL.config_letter = ''
-        # rotorM.config_letter = ''
-        # rotorR.config_letter = ''
+        for i,v in enumerate(x):
+            if i == 0:
+                l = v
+            elif i == 1:
+                m = v
+            else: 
+                r = v
 
         rotorL.config_letter = str(l)
         rotorM.config_letter = str(m)
@@ -108,7 +114,7 @@ class Enigma_machine:
         print(context)
         return context
 
-    def get_display(self):
+    def get_display(self) -> str:
         '''
         returns the current position of the rotors as a string
         '''
@@ -124,7 +130,7 @@ class Enigma_machine:
         print(context)
         return context
     
-    def count_rotors(self):
+    def count_rotors(self) -> list:
         '''
         Returns a list of integers that represent the rotation counts for each rotor.
         '''
@@ -141,70 +147,63 @@ class Enigma_machine:
         print(context)
         return list
 
-
-    def key_press(self, key):
+    def key_press(self, key) -> str:
         '''
         First the rotors are stepped by simulating the mechanical action of the
         machine. Next a simulated current is run through the machine. The lamp that is lit by this key press is
         returned as a string
+        step 0: convert letter to number value in left wheel
+        step 1: letter enters to left wheel, outputs left signal
+        step 2: middle wheel recieves left wheels output signal, outputs left signal
+        step 3: right wheel recieves left signal, outputs left signal
+        step 4: reflector recieves left signal, outputs right signal (flipped letter)
+        step 5: right wheel recieves right signal, outputs left signal
+        step 6: middle wheel recieves right signal, outputs left signal
+        step 7: left wheel recieves right signal, outputs left signal
+        step 8: print returning letter as the encrypted letter
         '''
-
-        letter_values1 = rotorL.letter_values
-        letter_values2 = rotorM.letter_values
-        letter_values3 = rotorR.letter_values
-        '''
-        use the built in signal functions from each rotor to follow
-        signal as inputted key starts from left and moves right towards
-        the reflector. Signals again track the input from right to left'''
-        self.l_value_of_key1, self.l_value_of_key2, self.l_value_of_key3  = 0,0,0
-
-        if key in letter_values1:
-            self.l_value_of_key1 += (letter_values1[key] + 1) #letter returns a number
-            if self.l_value_of_key1 > 25:
-                self.l_value_of_key1 += 0
-            if key == rotorL.stepping:
-                rotorM.rotate()
-            rotorL.rotate()
-
-        if key in letter_values2:
-            self.l_value_of_key2 += (letter_values2[key] + 1) 
-            if self.l_value_of_key2 > 25:
-                self.l_value_of_key2 += 0
-            if key == rotorM.stepping:
-                rotorR.rotate()
-            rotorM.rotate()
-
-        if key in letter_values3:
-            self.l_value_of_key3 += (letter_values3[key]+ 1)
-            if self.l_value_of_key3 > 25:
-                self.l_value_of_key3 += 0
-            if key == rotorR.stepping:
-                rotorL.rotate()
-            rotorR.rotate()
+        #step 0
+        initial_input= rotorL.letter_values[key] 
+        #step 1
+        rL_sl = rotorL.signal_from_left(initial_input)
+        rL_sr = rotorL.signal_from_right(rL_sl)
+        #step 2
+        rM_sl = rotorM.signal_from_left(rL_sr)
+        rM_sr = rotorM.signal_from_right(rM_sl)
+        #step 3
+        rR_sl = rotorR.signal_from_left(rM_sr)
+        rR_sr = rotorR.signal_from_right(rR_sl)
+        #step 4
+        b4_reflect_letter = rotorR.position_values[rR_sr]
+        reflect_pin = reflector.letter_values[b4_reflect_letter] 
         
-        print(self.l_value_of_key1, self.l_value_of_key2, self.l_value_of_key3)
+        after_reflect_letter = rotorR.position_values[reflect_pin] #Dev purposes
+        #step 5
+        rR_sr = rotorR.signal_from_right(reflect_pin)
+        rR_sl = rotorR.signal_from_left(rR_sr)
+        #step 6
+        rM_sr = rotorM.signal_from_right(rR_sl)
+        rM_sl = rotorM.signal_from_left(rM_sr)
+        # step 7
+        rL_sr = rotorL.signal_from_right(rM_sl)
+        rL_sl = rotorL.signal_from_left(rL_sr)
 
-        conversion1, conversion2, conversion3 = self.l_value_of_key1, self.l_value_of_key2, self.l_value_of_key3
-
-        num_values1, num_values2, num_values3 = rotorL.position_values, rotorM.position_values, rotorR.position_values
+        encrypted_letter = rotorL.position_values[rL_sl] 
         
-        self.n_value_of_key1, self.n_value_of_key2, self.n_value_of_key3 = '', '', ''
+        context = {'''
+            print(f"{key} was converted to {initial_input} inside of the left wheel")
+            print(f"The signal ENTERING wheel {self.rotorL} was {rL_sl} and LEAVING: {rL_sr}")
+            print(f"The signal ENTERING wheel {self.rotorM} was {rM_sl} and LEAVING: {rM_sr}")
+            print(f"The signal ENTERING wheel {self.rotorR} was {rR_sl} and LEAVING: {rR_sr}. The letter BEFORE reflector: {b4_reflect_letter}")
+            print(f" The signal LEAVING reflector {self.reflector} was {reflect_pin}. The letter AFTER reflector: {after_reflect_letter}")
+            print(f"{self.rotorR} recieved the signal {rR_sr} from reflecter pin and sent {rR_sl} to the left ")
+            print(f"{self.rotorM} recieved the signal {rM_sr} from the right and sent {rM_sl} to the left ")
+            print(f"{self.rotorL} recieved the signal {rL_sr} from the right and sent {rL_sl} to the left ")
+            print(f"We began at {key} and ENCRYPTION value is: {encrypted_letter}")
+        '''}
+        return encrypted_letter
 
-        if conversion1 in num_values1:
-            self.n_value_of_key1 += num_values1[conversion1]
-        if conversion2 in num_values2:
-            self.n_value_of_key2 += num_values2[conversion2]
-        if conversion3 in num_values3:
-            self.n_value_of_key3 += num_values3[conversion3]
-
-        print(self.n_value_of_key1, self.n_value_of_key2, self.n_value_of_key3)
-        return self.n_value_of_key1, self.n_value_of_key2, self.n_value_of_key3
-
-
-
-
-
-    def process_txt(self,text, replace_char = 'YY'):
+    def process_txt(self,text, replace_char = 'YY') -> str:
         '''
         step 0: All input is converted to uppercase. 
         Step 1: The parameter replace_char controls what is done to input characters that are not A-Z. 
@@ -212,7 +211,17 @@ class Enigma_machine:
         step 3: If replace_char is None the character is dropped from the input.
         step 4: Replace_char defaults to X.
         '''
-        pass
+        text.upper()
+        encryption = ''
+        
+        for i,v in enumerate(text):
+            if v.isalpha():
+                encrypted_letter = self.key_press(v)
+                encryption += encrypted_letter
+            else:
+                j = 'YY'
+                encryption += j
+        return encryption
 
     def __str__(self):
 
@@ -235,82 +244,28 @@ plugboard_config = PlugBoardObject('AV BS CG DL FU HZ IN KM OW RX')
 
 
 e = Enigma_machine(rotorL, rotorM, rotorR, reflector, plugboard_config)
-e.get_display()
-
 e.update_from_file('my_enigma_keys.txt')
 
 print("Updating Machine...")
 print(e)
 
-e.set_display("L", 'O', 'F')
 
-key_press = e.key_press('H')
-key_press = e.key_press('E')
-key_press = e.key_press('L')
-rotations = e.count_rotors()
-key_press = e.key_press('L')
-key_press = e.key_press('O')
+print('Configuring Enigma...')
+print("Sending TO: ")
+e.set_display('WXC') # set initial rotor positions
+enc_key = e.process_txt('BLU') # encrypt message key
+print(f"Encrypt Display key : {enc_key}")
 
+e.set_display('BLU') # use message key BLA
+print('ENCRYPTING text...')
+ciphertext = e.process_txt('THE RUSSIANS ARE COMING!')
+print(ciphertext)
 
-e.set_display("E", 'J', 'I')
-
-rotations = e.count_rotors()
-
-
-
-# def encrypt_enigma(ui):
-#     machine = EnigmaMachine.from_key_sheet(
-#         rotors='II IV V',
-#         reflector='B',
-#         ring_settings='B U L',
-#         plugboard_settings='AV BS CG DL FU HZ IN KM OW RX'
-#     )
-#     machine.set_display('WXC')
-#     machine.set_display(msg_key)
-#     text_to_encrypt = 'THEXRUSSIANSXAREXCOMINGX'
-#     encrypted_text = machine.process_text(text_to_encrypt)
-#     print(encrypted_text)
-#     print(text_to_encrypt)
-
-# def decrypt():
-#     machine = EnigmaMachine.from_key_sheet(
-#         rotors='II IV V',
-#         reflector='B',
-#         ring_settings='B U L',
-#         plugboard_settings='AV BS CG DL FU HZ IN KM OW RX'
-#     )
-#     machine.set_display('WXC')
-#      TODO
-#     msg_key = machine.process_text('KCH')
-#     machine.set_display(msg_key)
-#     decrypt_text = machine.process_text('NIBLFMYMLLUFWCASCSSNVHAZ')
-#     print(decrypt_text)
-
-
-
-'''
-        letter_values1 = rotorL.letter_values
-
-        self.l_value_of_key1=0
-
-        if key in letter_values1:
-            self.l_value_of_key1 += (letter_values1[key] + 1) 
-            if self.l_value_of_key1 > 25:
-                self.l_value_of_key1 += 0
-            if key == rotorL.stepping:
-                rotorM.rotate()
-            rotorL.rotate()
-        
-        print(self.l_value_of_key1)
-
-        conversion1= self.l_value_of_key1 #store in var
-
-        num_values1= rotorL.position_values # returns Letter
-        
-        self.n_value_of_key1= 0
-
-        if conversion1 in num_values1:
-            self.n_value_of_key1 += num_values1[conversion1]
-
-        print(self.n_value_of_key1)
-        return self.n_value_of_key1'''
+print('Configuring Enigma...')
+print("Recieving from: ")
+e.set_display('WXC')
+msg_key = e.process_txt('DXX')
+e.set_display(msg_key) # original message key is BLA
+print("DECRYPTING text...")
+plaintext = e.process_txt('SDOYYEXLLNCELYYCEOYYSVDNELYY')
+print(plaintext)

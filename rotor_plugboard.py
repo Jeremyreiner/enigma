@@ -65,7 +65,7 @@ class RoterObject:
                 print("The Ring setting must be a number between 0 - 25")
                 return False
 
-    def set_display(self, rotar_position):
+    def set_display(self, rotar_position) -> str:
         '''
         Set the rotator to a specific position
         '''
@@ -81,20 +81,21 @@ class RoterObject:
             self.config_letter += rotar_position
             return self.config_letter
 
-    def get_display(self):
+    def get_display(self) -> str:
         '''
         returns the rotors visible position
         '''
         return self.config_letter
 
-    def signal_from_right(self, num_contact):
+    def signal_from_right(self, num_contact) -> int:
         '''
         Simulate a signal entering the rotor 
         from the right at a given contact at position num_output.
         '''
         if 0 <= num_contact <= 25:
-            shift = num_contact - int(self.ring_setting)
-            index = (num_contact - ord('A')) % 26
+            shift = (num_contact - int(self.ring_setting)) % 26
+            # index = (num_contact - ord('A')) % 26
+            index = num_contact % 26
             contact = (shift + index) % 26
             rotor_generated = self.wiring[contact]
             next_letter_value = self.letter_values[rotor_generated]
@@ -103,13 +104,12 @@ class RoterObject:
         else:
             print("Your signal value seems to be out of the expected range. Re-calculate your signal")
 
-
-    def signal_from_left(self, num_pin):
+    def signal_from_left(self, num_pin) -> int:
         '''
         Simulate a signal entering the rotor 
         from the left at a given pin at position num_output.
         '''
-        if 0 <= self.config_num <= 25:
+        if 0 <= num_pin <= 25:
             shift = int(self.ring_setting)
             index = self.wiring[num_pin]
             index_value = self.letter_values[index]
@@ -121,7 +121,7 @@ class RoterObject:
         else:
             print("Your signal value seems to be out of the expected range. Re-calculate your signal")
 
-    def step_notch(self):
+    def step_notch(self) -> bool:
         '''
         If a stepping position is given, return True
         other wise return false
@@ -131,36 +131,26 @@ class RoterObject:
         else: 
             return True
     
-    def rotate(self):
+    def rotate(self) -> str:
         '''
         Rotates the rotor forward.
         '''
         self.rotation += 1
-        view = self.get_display()
+        view = self.get_display() #returns a capital letter
         if view == str(view) and view != '':
             rotate_value= self.letter_values[view]
             rotate_value += 1
             new_view = self.set_display(rotate_value)
             print(f"{self.model_name} just rotated, I have {self.rotation} total rotations. View:{new_view}")
+            return new_view 
         else: 
-            if view == '':
-                view += '1'
-                num = int(view)
-            else:
-                view+=1
-            new_view = self.set_display(num)
-            print(f"{self.model_name} just rotated, I have {self.rotation} total rotations. View:{new_view}")
-        return new_view # returns int
-
-    def letters_to_nums(self):
-        def __dict__(self):
-            conversion = self.position_values
-            return conversion 
-
-    def nums_to_letters(self):
-        def __dict__(self):
-            conversion = self.position_values
-            return conversion
+            # if view == '':
+            #     view += '1'
+            #     num = int(view)
+            # else:
+            #     view+=1
+            # new_view = self.set_display(num)
+            print(f'Something whent wrong in your rotations. There is no current rotater value visable. on {self.model_name}')
 
     def __str__(self):
         '''
@@ -192,7 +182,7 @@ class ReflectorObject:
         self.model_name = model_name
         self.ring_setting = ring_setting
         self.letters = ''
-        self.letter_values = {}
+        self.letter_values = {} # returns a number
         #step 0, 1
         reflecter_wiring = {
             'B': 'FVPJIAOYEDRZXWGCTKUQSBNMHL',
@@ -324,7 +314,7 @@ class PlugBoardObject(RoterObject):
         else:
             wire_pairings = None
 
-    def key_sheet(self, *args):
+    def key_sheet(self, *args) -> str:
         '''
         Build a plugboard according to a settings string as you may find on a key
         sheet. For no plugboard connections, settings can be None or an empty string.
@@ -371,7 +361,7 @@ class PlugBoardObject(RoterObject):
             str = ''
             return str 
 
-    def signal(self, n):
+    def signal(self, n) -> int:
         '''
         Simulates a signal entering the plugboard on wire n, 
         where n must be an integer between 0 and 25.
