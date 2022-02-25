@@ -1,12 +1,14 @@
-class RoterObject():
+class RoterObject:
     def __init__(self, model_name, ring_setting=0, stepping=None):
         self.model_name = model_name
+        self.ring_setting = ring_setting
         self.stepping = stepping
         self.config_letter = ''
         self.config_num = ''
         self.letters = ''
         self.letter_values= {}
         self.position_values = {}
+        self.rotation = 0
         '''
         step 0: model_name: (string) ex; 'I', 'II', 'III'
         step 1: wiring: (string) 26 uppercase characters A-Z that represent
@@ -53,17 +55,26 @@ class RoterObject():
             return False
 
         # step 2
-        if int(ring_setting) > 25:
-            print("The Ring setting must be a number between 0 - 25")
-            return False
+
+        if ring_setting == str(ring_setting):
+            if ring_setting in self.letter_values:
+                ring_setting = self.letter_values[ring_setting]
+                self.ring_setting = ring_setting
+        
         else:
-            self.ring_setting = int(ring_setting)
+            ring_setting
+            if 0 <= int(ring_setting) <= 25:
+                self.ring_setting = ring_setting
+            else:
+                print("The Ring setting must be a number between 0 - 25")
+                return False
 
     def set_display(self, rotar_position):
         '''
         Set the rotator to a specific position
         '''
-        letter = self.position_values[rotar_position]
+        number = self.letter_values[rotar_position]
+        letter = self.position_values[number]
         self.config_letter = letter
         return letter
 
@@ -72,9 +83,7 @@ class RoterObject():
         returns the rotors visible position
         '''
         letter = self.config_letter
-        num = self.letter_values[letter]
-        self.config_num = num
-        return num
+        return letter
 
     def signal_from_right(self, num_contact):
         '''
@@ -82,7 +91,7 @@ class RoterObject():
         from the right at a given contact at position num_output.
         '''
         if 0 <= num_contact <= 25:
-            shift = num_contact - self.ring_setting
+            shift = num_contact - int(self.ring_setting)
             index = (num_contact - ord('A')) % 26
             contact = (shift + index) % 26
             rotor_generated = self.wiring[contact]
@@ -99,7 +108,7 @@ class RoterObject():
         from the left at a given pin at position num_output.
         '''
         if 0 <= self.config_num <= 25:
-            shift = self.ring_setting
+            shift = int(self.ring_setting)
             index = self.wiring[num_pin]
             index_value = self.letter_values[index]
             contact = (shift + index_value) % 26
@@ -126,11 +135,23 @@ class RoterObject():
         '''
         Rotates the rotor forward.
         '''
-        view = self.get_display()
+        self.rotation += 1
+        view = self.get_display
         rotation = view + 1
-        self.set_display(rotation)
+        new_view = self.set_display(rotation)
+        print(f"I just rotated, I have {self.rotation} total rotations")
 
-        return rotation
+        return new_view
+
+    def letters_to_nums(self):
+        def __dict__(self):
+            conversion = self.position_values
+            return conversion 
+
+    def nums_to_letters(self):
+        def __dict__(self):
+            conversion = self.position_values
+            return conversion
 
     def __str__(self):
         '''
@@ -147,14 +168,14 @@ class RoterObject():
         return context
 
 
-r3 = RoterObject('III', '5', 'D')
+# r3 = RoterObject('III', '5', 'D')
 
-set = r3.set_display(17)
-get = r3.get_display()
-sig_in = r3.signal_from_right(12)
-sig_out = r3.signal_from_left(12)
-notch = r3.step_notch()
-rotate = r3.rotate()
+# set = r3.set_display(17)
+# get = r3.get_display()
+# sig_in = r3.signal_from_right(12)
+# sig_out = r3.signal_from_left(12)
+# notch = r3.step_notch()
+# rotate = r3.rotate()
 
 # print(r3)
 # print(sig_in)
@@ -229,8 +250,8 @@ class ReflectorObject:
                 # Reflector Stepping: {self.stepping}
         return context
 
-r1 = ReflectorObject('B', '12')
-r2 = ReflectorObject('C', '7', 'J')
+# r1 = ReflectorObject('B', '12')
+# r2 = ReflectorObject('C', '7', 'J')
 
 
 class PlugBoardObject(RoterObject):
@@ -252,14 +273,18 @@ class PlugBoardObject(RoterObject):
     TODO: NEED TO CONFIGURE USING INHERITENCE ON ROTOR VALUES
     '''
     def __init__(self, wire_pairings):
-        super(RoterObject)
 
-        self.plug_directons = {}
         self.keys = ''
         self.signal_to = ''
         self.signal_from = ''
+        self.plug_directons = {}
         
+
+
+
         #TODO
+        # self.letter_values = RoterObject.letters_to_nums
+        # self.position_values = RoterObject.nums_to_letters
         self.letter_values = {
             'A': 0, 'J': 9,  'S': 18,
             'B': 1, 'K': 10, 'T': 19,
@@ -417,7 +442,7 @@ class PlugBoardObject(RoterObject):
                 # PlugBoard keys: {self.keys} 
         return context
 
-pairs =  'AS DF GH JK LP QW ER TY UI ZX'
-list = ['AS','DF','GH','JK','QW','ER','TY','UI','ZX']
-p = PlugBoardObject(pairs)
-p.signal(3)
+# pairs =  'AS DF GH JK LP QW ER TY UI ZX'
+# list = ['AS','DF','GH','JK','QW','ER','TY','UI','ZX']
+# p = PlugBoardObject(pairs)
+# p.signal(3)
