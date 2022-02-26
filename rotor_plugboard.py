@@ -1,5 +1,6 @@
 class RoterObject:
     def __init__(self, model_name, ring_setting=0, stepping=None):
+        super().__init()
         self.model_name = model_name
         self.ring_setting = ring_setting
         self.stepping = stepping
@@ -242,33 +243,12 @@ class PlugBoardObject(RoterObject):
         self.keys = ''
         self.signal_to = ''
         self.signal_from = ''
-        self.plug_directons = {}
+        self.plug_board = {}
 
         # #TODO
         # self.letter_values = RoterObject.letters_to_nums
         # self.position_values = RoterObject.nums_to_letters
-        self.letter_values = {
-            'A': 0, 'J': 9,  'S': 18,
-            'B': 1, 'K': 10, 'T': 19,
-            'C': 2, 'L': 11, 'U': 20,
-            'D': 3, 'M': 12, 'V': 21,
-            'E': 4, 'N': 13, 'W': 22,
-            'F': 5, 'O': 14, 'X': 23,
-            'G': 6, 'P': 15, 'Y': 24,
-            'H': 7, 'Q': 16, 'Z': 25,
-            'I': 8, 'R': 17, 
-        }
-        self.position_values = {
-            0: 'A', 9: 'J',  18: 'S',
-            1: 'B', 10: 'K', 19: 'T',
-            2: 'C', 11: 'L', 20: 'U',
-            3: 'D', 12: 'M', 21: 'V',
-            4: 'E', 13: 'N', 22: 'W',
-            5: 'F', 14: 'O', 23: 'X',
-            6: 'G', 15: 'P', 24: 'Y',
-            7: 'H', 16: 'Q', 25: 'Z',
-            8: 'I', 17: 'R', 
-        }
+
 
         #step 0
         if wire_pairings != None:
