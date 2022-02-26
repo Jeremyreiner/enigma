@@ -5,7 +5,7 @@ class Enigma:
         self.letters = list(ascii_uppercase)
         self.plugboard=plugboard
         self.config_settings = config_settings
-        self.reflector = [letter for letter in self.letters[::-1]]
+        # self.reflector = [letter for letter in self.letters[::-1]]
 
         if self.config_settings != None:
             try:
@@ -29,8 +29,10 @@ class Enigma:
                 step 0: Initialize for loop for the length of the inbound message
                 step 1: For each x amount of iterations a predetirmined 
                         configurations have been sent Update configs according
-                step 2: now that configs have been recieved update the machine
-                step 3: Close the file and return configurations
+                step 2: If there is plugboard configurations, remove the configurations from 
+                        the list of letters
+                step 3: now that configs have been recieved update the machine
+                step 4: Close the file and return configurations
                 '''
                 #step 0
                 for i in range(len(messenge)):
@@ -60,8 +62,19 @@ class Enigma:
                         return f'''
                             The inbound message did not fit the code encryption style and can not be converted into this machine
                         '''
-            
                 #step 2
+                for letter in list(self.plugboard.keys()):
+                    '''
+                    For the inputted pairs of plugboard numbers
+                    Return the keys in list form and remove them from
+                    from the list alphabet.
+                    '''
+                    if letter in self.letters:
+                        self.letters.remove(letter)
+                        self.letters.remove(self.plugboard[letter])
+                        self.plugboard.update({self.plugboard[letter]: letter})
+                        self.reflector = [letter for letter in self.letters[::-1]]
+                #step 3
                 context = f'''
                         DECRYPTING TRANSMITION:
 
@@ -71,7 +84,7 @@ class Enigma:
                         RIGHT ROTOR: {self.rotorR}
                         PLUG BOARD CONFIGURATIONS: {self.plugboard}
                         '''
-                #step 3
+                #step 4
                 self.config_settings += context
                 f.close()
                 self.rotorL = int(self.rotorL)
@@ -128,7 +141,7 @@ class Enigma:
 
             for letter in list(self.plugboard.keys()):
                 '''
-                For the inputted 10 pairs of plugboard numbers
+                For the inputted pairs of plugboard numbers
                 Return the keys in list form and remove them from
                 from the list alphabet.
                 '''
@@ -136,6 +149,9 @@ class Enigma:
                     self.letters.remove(letter)
                     self.letters.remove(self.plugboard[letter])
                     self.plugboard.update({self.plugboard[letter]: letter})
+                    self.reflector = [letter for letter in self.letters[::-1]]
+
+
 
     def rotate_forward(self, rotor) -> list:
         new_letters = ''.join(self.letters)
@@ -253,12 +269,7 @@ class Enigma:
 
                     encrypted_txt.append(temp_letter)
                     sting = ''.join(encrypted_txt)
-                    #print(f"Left Rotor: {temp_letter}")
-                    #print(f"Middle Rotor: {temp_letter}")
-                    #print(f"Right Rotor: {temp_letter}")
-                    #print(f"The Encrypted letter is {encrypted_txt}")
             p = 0
-        # print(sting)
         return sting
 
 ##todo IMPORTING MACHINE SETTINGS ENCRYPTION
@@ -279,27 +290,27 @@ class Enigma:
 # e.set_rotors(1, 16, 10)
 
 # print('DECRYPTING MESSAGE...')
-# decrypt = e.encryp_text('UXMMRYYJROMEYYOAZBYYBBYYLYYJAFHLPYYLRPKJEN')
+# decrypt = e.encryp_text('EHMMDYYVDZMQYYAKJBYYNBYYLYYLCAVUQY')
 # print(f'DECRYPTED MESSAGE: {decrypt}')
 
 
 ## todo HARD PUSHING CONFIGURATION SETTINGS
-print(f"CONFIGURING ENIGMA SETTINGS...")
-e = Enigma({'a':'b', 'R':'S', 'e':'z'}, rotorL=5, rotorM=17)
+# print(f"CONFIGURING ENIGMA SETTINGS...")
+# e = Enigma({'A':'B', 'R':'S', 'E':'Z'}, rotorL=5, rotorM=17)
 
-print(f"INITIAL ROTOR POSITIONS:")
-e.view_position()
+# print(f"INITIAL ROTOR POSITIONS:")
+# e.view_position()
 
-print('ENCRYPTING MESSAGE...')
-message = e.encryp_text('hello world this is my enigma machine')
-print(f'ENCRYPTED MESSAGE: {message}')
+# print('ENCRYPTING MESSAGE...')
+# message = e.encryp_text('hello world this is my machine')
+# print(f'ENCRYPTED MESSAGE: {message}')
 
-print(f"RE-CONFIGURING ENIGMA SETTINGS...")
+# print(f"RE-CONFIGURING ENIGMA SETTINGS...")
 
-print(f"INITIAL ROTOR POSITIONS:")
-e.view_position()
-e.set_rotors(5, 17, 0)
+# print(f"INITIAL ROTOR POSITIONS:")
+# e.view_position()
+# e.set_rotors(5, 17, 0)
 
-print('DECRYPTING MESSAGE...')
-decrypt = e.encryp_text('UXMMRYYJROMEYYOAZBYYBBYYLYYJAFHLPYYLRPKJEN')
-print(f'DECRYPTED MESSAGE: {decrypt}')
+# print('DECRYPTING MESSAGE...')
+# decrypt = e.encryp_text('EHMMDYYVDZMQYYAKJBYYNBYYLYYLCAVUQY')
+# print(f'DECRYPTED MESSAGE: {decrypt}')
