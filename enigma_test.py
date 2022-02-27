@@ -8,8 +8,8 @@ def check_encription(before, after):
     new_string = new_string.upper()
 
     if new_string == after:
+
         print(f"Congratulations your code is working!!!")
-        return new_string, after
     else:
         print(new_string)
         print(after)
@@ -19,6 +19,10 @@ def check_encription(before, after):
 def check_char(before, middle, after):
     new_string = before.upper()
     new_string = new_string.replace(' ', 'YY')
+
+    print(f"BEFORE: {new_string}")
+    print(f"ENCRYPTION: {middle}")
+    print(f"AFTER: {after} ")
 
     comparison_dict_before = {}
     comparison_dict_middle = {}
@@ -51,8 +55,9 @@ def check_char(before, middle, after):
                 print(f"In comparing Before Encryption and the Encrption itself. {i} == {i} at index of {comparison_dict_middle[i]} ")
                 temp_dict[i] = m
                 m += 1
-            else:
-                pass
+            # else:
+                # temp_dict[i] = [f'Middle: index of {comparison_dict_middle[i]}, Before: index of {comparison_dict_before[i]}']
+                # m += 1
         else:
             pass
     print("These are the matching values in both lists BEFORE encryption and THE Encryption itself:")
@@ -65,8 +70,9 @@ def check_char(before, middle, after):
                 print(f"In comparing After Encryption and the Encrption itself.{i} == {i} at index of {comparison_dict_middle[i]} ")
                 temp_dict[i] = m
                 m += 1
-            else:
-                pass
+            # else:
+                # temp_dict[i] = [f'Middle: index of {comparison_dict_middle[i]}, After: index of {comparison_dict_after[i]}']
+                # m += 1
         else:
             pass
     print("These are the matching values in both lists AFTER encryption and THE Encryption itself:")
