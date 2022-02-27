@@ -1,2 +1,2 @@
- 29 1 16 10 LM BS 
+ MON 1 16 10 CD EF GH IJ KL MN OP
  
