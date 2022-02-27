@@ -1,8 +1,9 @@
 from string import ascii_uppercase
 
 class Enigma:
-    def __init__(self, plugboard = {'':''}, config_settings = None, rotorL=None, rotorM=None, rotorR=None):
+    def __init__(self, name, plugboard = {'':''}, config_settings = None, rotorL=None, rotorM=None, rotorR=None):
         self.letters = list(ascii_uppercase)
+        self.name = name
         self.plugboard=plugboard
         self.config_settings = config_settings
 
@@ -75,7 +76,7 @@ class Enigma:
                         self.reflector = [letter for letter in self.letters[::-1]]
                 #step 3
                 context = f'''
-                        DECRYPTING TRANSMITION:
+                        {self.name} DECRYPTING TRANSMITION :
 
                         DATE: {self.day}
                         LEFT ROTOR: {self.rotorL} 
@@ -175,7 +176,7 @@ class Enigma:
 
     def view_rotor(self) -> int:
         context = f'''
-            YOUR MACHINES ROTORS ARE CURRENTLY IN POSITIONS:
+            {self.name}'s ROTORS ARE CURRENTLY IN POSITIONS:
 
             LEFT ROTOR: {self.rotorL}
             MIDDLE ROTOR: {self.rotorM}
@@ -193,7 +194,13 @@ class Enigma:
         self.rotorR = self.letters.index(r3)
 
         context = f'''
-            ROTORS HAVE BEEN RECONFIGURED TO:
+            {self.name}'s ROTORS HAVE BEEN RECONFIGURED FROM:
+
+            LEFT ROTOR: {r1}
+            MIDDLE ROTOR: {r2}
+            RIGHT ROTOR: {r3}
+
+            {self.name}'s ROTORS HAVE BEEN RECONFIGURED TO:
 
             LEFT ROTOR: {self.rotorL}
             MIDDLE ROTOR: {self.rotorM}
@@ -218,7 +225,7 @@ class Enigma:
         #if self.letters[self.rotorL]:
 
         context = f'''
-            THE ROTORS OF HAVE BEEN ENCRYPTED TO:
+            {self.name}'s ROTORS OF HAVE BEEN ENCRYPTED TO:
 
             LEFT ROTOR: {rotorL}
             MIDDLE ROTOR: {rotorM}
@@ -244,7 +251,7 @@ class Enigma:
             self.rotorR = 0
 
         context = f'''
-                ROTORS HAVE BEEN RE-SET TO POSITIONS:
+                {self.name}'s ROTORS HAVE BEEN RE-SET TO POSITIONS:
                 
                 LEFT ROTOR: {self.rotorL}
                 MIDDLE ROTOR: {self.rotorM}
@@ -317,54 +324,55 @@ class Enigma:
 
 
 
-# ##todo IMPORTING MACHINE SETTINGS ENCRYPTION
-# print(f"CONFIGURING ENIGMA SETTINGS...")
-# e = Enigma(config_settings='my_enigma_keys.txt')
-
-# ##todo ENCRIPTS ROTOR NUMERICAL VALUE FOR ABILITY TO SEND
-# print('ENCRYPTING ROTOR POSITIONS...')
-# e.encrypt_rotor_position()
-
-# print('ENCRYPTING MESSAGE...')
-# message = e.encryp_text('hello world this is my enigma machine')
-# print(f'ENCRYPTED MESSAGE: {message}')
-
-# print(f"RE-CONFIGURING ENIGMA SETTINGS...")
-# print(f"CONFIGURING ROTOR POSITIONS:")
-
-# ##todo TAKE INPUT FROM ROTOR ENCRYPTION FOR THIS STEP
-# e.decrypt_rotor_position('B', 'S', 'Y')
-# e.set_rotors(1, 4, 10)
-
-# print('DECRYPTING MESSAGE...')
-# decrypt = e.encryp_text('GFKKPYYVPQKCYYSGJXYYJZYYNYYFMJHNRYYNTDGJMF')
-# print(f'DECRYPTED MESSAGE: {decrypt}')
-
-
-
-
-# todo HARD PUSHING CONFIGURATION SETTINGS
+##todo IMPORTING MACHINE SETTINGS ENCRYPTION
 print(f"CONFIGURING ENIGMA SETTINGS...")
-e = Enigma({'A':'B', 'R':'S', 'E':'Z'}, rotorL=5, rotorM=17)
+encrypt = Enigma('Machine1',config_settings='my_enigma_keys.txt')
 
 ##todo ENCRIPTS ROTOR NUMERICAL VALUE FOR ABILITY TO SEND
-e.view_rotor()
 print('ENCRYPTING ROTOR POSITIONS...')
-e.encrypt_rotor_position()
+encrypt.encrypt_rotor_position()
 
 print('ENCRYPTING MESSAGE...')
-message = e.encryp_text('hello world this is my enigma machine')
+message = encrypt.encryp_text('hello world this is my enigma machine')
 print(f'ENCRYPTED MESSAGE: {message}')
 
-print("RE-CONFIGURING ENIGMA SETTINGS...")
-enc = e.encrypt_rotor_position()
-print(f"CONFIGURING NEW ROTOR POSITIONS: {enc}")
+print(f"SECOND ENIGMA MACHINE INITIALIZED...")
+print(f"CONFIGURING ROTOR POSITIONS:")
+decrypt = Enigma('Machine2', config_settings='my_enigma_keys.txt')
 
 ##todo TAKE INPUT FROM ROTOR ENCRYPTION FOR THIS STEP
-
-e.decrypt_rotor_position('I', 'W', 'C')
-e.set_rotors(5, 17, 0)
+decrypt.decrypt_rotor_position('B', 'S', 'Y')
+decrypt.set_rotors(1, 4, 10)
 
 print('DECRYPTING MESSAGE...')
-decrypt = e.encryp_text('YZWWTYYLTSYJYYQGFRYYHRYYFYYZGLNHBYYJBWQPKZ')
+decrypt = decrypt.encryp_text(message)
 print(f'DECRYPTED MESSAGE: {decrypt}')
+
+
+
+
+# # todo HARD PUSHING CONFIGURATION SETTINGS
+# print(f"CONFIGURING ENIGMA SETTINGS...")
+# machine1 = Enigma('Machine1',{'A':'B', 'R':'S', 'E':'Z'}, rotorL=5, rotorM=17)
+
+# ##todo ENCRIPTS ROTOR NUMERICAL VALUE FOR ABILITY TO SEND
+# machine1.view_rotor()
+# print('ENCRYPTING ROTOR POSITIONS...')
+# rotor_position = machine1.encrypt_rotor_position()
+
+# print('ENCRYPTING MESSAGE...')
+# message = machine1.encryp_text('hello world this is my enigma machine')
+# print(f'ENCRYPTED MESSAGE: {message}')
+
+
+# ##todo TAKE INPUT FROM ROTOR ENCRYPTION FOR THIS STEP
+# print(f"SECOND ENIGMA MACHINE INITIALIZED...")
+# machine2 = Enigma('Machine2',{'A':'B', 'R':'S', 'E':'Z'}, rotorL=5, rotorM=17)
+
+# print("CONFIGURING ROTOR POSITIONS:")
+# machine2.decrypt_rotor_position('I', 'W', 'C')
+# machine2.set_rotors(5, 17, 0)
+
+# print('DECRYPTING MESSAGE...')
+# decrypt = machine2.encryp_text(message)
+# print(f'DECRYPTED MESSAGE: {decrypt}')
