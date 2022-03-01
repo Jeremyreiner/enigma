@@ -1,0 +1,15 @@
+{
+    "settings":
+        {
+            "date": 30,
+            "plugboard": 
+                    {
+                        "A": "B", 
+                        "C": "D", 
+                        "E": "F"
+                    },
+            "rotorL": 15,
+            "rotorM": 17,
+            "rotorR": 4
+        }  
+}

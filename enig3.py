@@ -63,7 +63,7 @@ class Enigma:
                             The inbound message did not fit the code encryption style and can not be converted into this machine
                         '''
                 #step 2
-                for letter in list(self.plugboard.keys()):
+                for letter in list(self.plugboard.keys()): 
                     '''
                     For the inputted pairs of plugboard numbers
                     Return the keys in list form and remove them from
@@ -74,7 +74,7 @@ class Enigma:
                         self.letters.remove(self.plugboard[letter])
                         self.plugboard.update({self.plugboard[letter]: letter})
                         self.reflector = [letter for letter in self.letters[::-1]]
-                #step 3
+                #step 3 
                 context = f'''
                         {self.name} DECRYPTING TRANSMITION :
 
@@ -110,7 +110,7 @@ class Enigma:
             is either missing or filled out not as intended.
             '''
             if type(plugboard) is not dict: 
-                    self.plugboard = {'':''}
+                self.plugboard = {'':''}
 
             if rotorL != None:
                 self.rotorL = rotorL
@@ -150,8 +150,6 @@ class Enigma:
                     self.letters.remove(self.plugboard[letter])
                     self.plugboard.update({self.plugboard[letter]: letter})
                     self.reflector = [letter for letter in self.letters[::-1]]
-
-
 
     def rotate_forward(self, rotor) -> list:
         new_letters = ''.join(self.letters)
@@ -208,7 +206,6 @@ class Enigma:
             '''
         print(context)
         return self.rotorL, self.rotorM, self.rotorR
-
 
     def encrypt_rotor_position(self) -> str:
         '''

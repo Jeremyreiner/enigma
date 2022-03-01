@@ -1,275 +1,358 @@
-from pyexpat import model
-from rotor_plugboard import RoterObject, ReflectorObject, PlugBoardObject
+from string import ascii_uppercase
+import json
 
-class Enigma_machine:
-    def __init__(self, rotor1, rotor2, rotor3, reflector_config, plugboard_config):
+class Enigma():
+    def __init__(self, name, plug_board={'':''}, config_file=None, rotorL=None, rotorM=None, rotorR=None, reflector= None):
         super().__init__()
-        self.rotorL = rotor1
-        self.rotorM = rotor2
-        self.rotorR = rotor3
-        self.reflector = reflector_config
-        self.plug_board = plugboard_config
-        self.configs = ''
-    
-    def update_from_file(self, file) -> str:
-        '''
-        update machine with inbound encrypted messege
-        '''
-        with open('my_enigma_keys.txt', 'r') as f:
-            if f:
-                print("Incoming Transmission: ")
-                #f.readline()
-                self.configs += f.readline()
+        self.name = name
+        self.alphabet = list(ascii_uppercase)
+        self.config_file = config_file
 
-        string = self.configs
-        list = string.split()
+        if config_file != None:
+            try:
+                # convert into JSON:
+                f = open(config_file)
+                data = json.load(f)
+            except:
+                print("Enigma Error 1: No such settings file has been found.")
+            
+            finally:
+                # the result is a JSON string:
+                json_string = data['settings']
+                self.date = json_string['date']
+                self.plugboard = json_string['plugboard']
+                self.rotorL = json_string['rotorL']
+                self.rotorM = json_string['rotorM']
+                self.rotorR = json_string['rotorR']
 
-        self.plugboard = ''
+                for letter in list(self.plugboard.keys()):
+                    if letter in self.alphabet:
+                        self.alphabet.remove(letter)
+                        self.alphabet.remove(self.plugboard[letter])
+                        self.plugboard.update({self.plugboard[letter]:letter})
+                        self.reflector = [letter for letter in self.alphabet[::-1]]
+                    else:
+                        self.reflector = [letter for letter in self.alphabet[::-1]]
+                
+                context = f'''
+                    {self.name} Decrypting Transmition
+                    
+                    DATE: {self.date}
+                    PLUGBOARD CONFIGURATION: {self.plugboard}
+                    LEFT ROTOR: {self.rotorL}
+                    MIDDLE ROTOR: {self.rotorM}
+                    RIGHT ROTOR: {self.rotorR}
+                    '''
+                print(context)
 
-        '''
-        step 0: Initialize for loop for the length of the inbound message
-        step 1: For each x amount of iterations a predetirmined 
-                configurations have been sent Update configs according
-        step 2: now that configs have been recieved update the machine
-        step 3: Close the file and return configurations
-        '''
-        #step 0
-        for i in range(len(list)):
-            # step 1
-            if i == 0:
-                self.day = list[i]
-            # step 1
-            elif 1 <= i <=3:
-                if i == 1:
-                    self.rotorL = list[i]
-                elif i == 2:
-                    self.rotorM = list[i]
-                else:
-                    self.rotorR = list[i]
-            # step 1
-            elif 4 <= i <= 6:
-                if i == 4:
-                    self.ringsetting_rotorL = list[i]
-                if i == 5:
-                    self.ringsetting_rotorM = list[i]
-                else:
-                    self.ringsetting_rotorR = list[i]
-            # step 1
-            elif 7 <= i <= 16:
-                for j in list[i]:
-                    if j == list[i][-1]:
-                        self.plugboard += list[i]
-                        self.plugboard += ' '
-            # step 1
-            elif i == 17:
-                self.reflector = list[i]
-            else:
-                return f'''
-                    The inbound message did not fit the code encryption style and can not be converted into this machine
-                '''
-        
-        # step 2
-        # self.rotorL, self.rotorM, self.rotorR = self.r1, self.r2, self.r3
-        # self.reflector = self.reflector_config
-        self.plug_board = self.plugboard
-        
-        #step 2
-        context = f'''
-                DECRYPTING TRANSMITION:
-
-                Date: {self.day}
-                Left, Middle, Right Rotors: {self.rotorL} {self.rotorL} {self.rotorL}
-                Ring Set LMR Rotors: {self.ringsetting_rotorL} {self.ringsetting_rotorM} {self.ringsetting_rotorR}
-                Plug Board: {self.plugboard}
-                Reflector: {self.reflector}
-                '''
-        #step 3
-        self.configs += context
-        f.close()
-        print(self.configs)
-        return self.configs
-        
-    def set_display(self, x) -> str:
-        '''
-        establishes a new starting position for a subsequent
-        encrypt or decrypt operation
-        '''
-        rotorL.rotation,rotorM.rotation, rotorR.rotation = 0,0,0
-        for i,v in enumerate(x):
-            if i == 0:
-                l = v
-            elif i == 1:
-                m = v
-            else: 
-                r = v
-
-        rotorL.config_letter = str(l)
-        rotorM.config_letter = str(m)
-        rotorR.config_letter = str(r)
-
-        context = f'''
-                The rotors have been set to positions: 
-                [{rotorL.config_letter} {rotorM.config_letter} {rotorR.config_letter}]
-        '''
-        print(context)
-        return context
-
-    def get_display(self) -> str:
-        '''
-        returns the current position of the rotors as a string
-        '''
-
-        left = rotorL.config_letter
-        mid = rotorM.config_letter
-        right = rotorR.config_letter
-
-        context = f'''
-                The rotors are currently in positions: 
-                [{left} {mid} {right}]
-        '''
-        print(context)
-        return context
-    
-    def count_rotors(self) -> list:
-        '''
-        Returns a list of integers that represent the rotation counts for each rotor.
-        '''
-        l = rotorL.rotation
-        m = rotorM.rotation
-        r = rotorR.rotation
-        
-        list = [l,m,r]
-        context = f'''
-            Left Roter Rotations: {rotorL.rotation}
-            Middle Roter Rotations: {rotorM.rotation}
-            Right Roter Rotations: {rotorR.rotation}
-        '''
-        print(context)
-        return list
-
-    def key_press(self, key) -> str:
-        '''
-        First the rotors are stepped by simulating the mechanical action of the
-        machine. Next a simulated current is run through the machine. The lamp that is lit by this key press is
-        returned as a string
-        step 0: convert letter to number value in left wheel
-        step 1: letter enters to left wheel, outputs left signal
-        step 2: middle wheel recieves left wheels output signal, outputs left signal
-        step 3: right wheel recieves left signal, outputs left signal
-        step 4: reflector recieves left signal, outputs right signal (flipped letter)
-        step 5: right wheel recieves right signal, outputs left signal
-        step 6: middle wheel recieves right signal, outputs left signal
-        step 7: left wheel recieves right signal, outputs left signal
-        step 8: print returning letter as the encrypted letter
-        '''
-        #step 0
-        initial_input= rotorL.letter_values[key] 
-        #step 1
-        rL_sl = rotorL.signal_from_left(initial_input)
-        rL_sr = rotorL.signal_from_right(rL_sl)
-        #step 2
-        rM_sl = rotorM.signal_from_left(rL_sr)
-        rM_sr = rotorM.signal_from_right(rM_sl)
-        #step 3
-        rR_sl = rotorR.signal_from_left(rM_sr)
-        rR_sr = rotorR.signal_from_right(rR_sl)
-        #step 4
-        b4_reflect_letter = rotorR.position_values[rR_sr]
-        reflect_pin = reflector.letter_values[b4_reflect_letter] 
-        
-        after_reflect_letter = rotorR.position_values[reflect_pin] #Dev purposes
-        #step 5
-        rotorR.rotate()
-        rR_sr = rotorR.signal_from_right(reflect_pin)
-        rR_sl = rotorR.signal_from_left(rR_sr)
-        #step 6
-        rotorR.rotate()
-        rM_sr = rotorM.signal_from_right(rR_sl)
-        rM_sl = rotorM.signal_from_left(rM_sr)
-        # step 7
-        rotorL.rotate()
-        rL_sr = rotorL.signal_from_right(rM_sl)
-        rL_sl = rotorL.signal_from_left(rL_sr)
-
-        encrypted_letter = rotorL.position_values[rL_sl] 
-        
-        context = {'''
-        print(f"{key} was converted to {initial_input} inside of the left wheel")
-        print(f"The signal ENTERING wheel {self.rotorL} was {rL_sl} and LEAVING: {rL_sr}. Letter = {rotorL.position_values[rL_sl]}")
-        print(f"The signal ENTERING wheel {self.rotorM} was {rM_sl} and LEAVING: {rM_sr}. Letter = {rotorM.position_values[rM_sr]}")
-        print(f"The signal ENTERING wheel {self.rotorR} was {rR_sl} and LEAVING: {rR_sr}. The letter BEFORE reflector: {b4_reflect_letter}")
-        print(f" The signal LEAVING reflector {self.reflector} was {reflect_pin}. The letter AFTER reflector: {after_reflect_letter}")
-        print(f"{self.rotorR} recieved the signal {rR_sr} from reflecter pin and sent {rR_sl} to the left. Letter = {rotorR.position_values[rR_sl]} ")
-        print(f"{self.rotorM} recieved the signal {rM_sr} from the right and sent {rM_sl} to the left. Letter = {rotorM.position_values[rM_sl]}")
-        print(f"{self.rotorL} recieved the signal {rL_sr} from the right and sent {rL_sl} to the left. Letter = {rotorL.position_values[rL_sl]} ")
-        '''}
-        print(f"We began at {key} and ENCRYPTION value is: {encrypted_letter}")
-        return encrypted_letter
-
-    def process_txt(self,text, replace_char = 'YY') -> str:
-        '''
-        step 0: All input is converted to uppercase. 
-        Step 1: The parameter replace_char controls what is done to input characters that are not A-Z. 
-        Step 2: If the input text contains a character not on the keyboard, it is replaced with replace_char. 
-        step 3: If replace_char is None the character is dropped from the input.
-        step 4: Replace_char defaults to X.
-        '''
-        text.upper()
-        encryption = ''
-        
-        for i,v in enumerate(text):
-            if v.isalpha():
-                encrypted_letter = self.key_press(v)
-                encryption += encrypted_letter
-            else:
-                j = 'YY'
-                encryption += j
-        return encryption
-
-    def __str__(self):
-
-        context = f'''
-            Rotors Models: [{self.rotorL}, {self.rotorM}, {self.rotorR}]
-            Reflector Model: {self.reflector}
-            PlugBoard Configurations: {self.plug_board}
+        elif rotorL != None and rotorM != None and rotorR != None and plug_board != None and reflector != None:
             '''
+            All objects have been inputed correctly
+            '''
+            if type(plug_board) is not dict:
+                self.plugboard = {'': ''}
+            else:
+                self.plugboard = plug_board
+            
+            for letter in list(self.plugboard.keys()):
+                if letter in self.alphabet:
+                    self.alphabet.remove(letter)
+                    self.alphabet.remove(self.plugboard[letter])
+                    self.plugboard.update({self.plugboard[letter]:letter})
+                    self.reflector = [letter for letter in self.alphabet[::-1]]
+                else:
+                    self.reflector = [letter for letter in self.alphabet[::-1]]
+            
+            if rotorL == None and type(rotorL) is not int  and type(rotorL) is not float:
+                self.rotorL = 0
+            else:
+                self.rotorL = rotorL % 26
+
+            if rotorM == None and type(rotorM) is not int  and type(rotorM) is not float:
+                self.rotorM = 0
+            else:
+                self.rotorM = rotorM % 26
+
+            if rotorR == None and type(rotorR) is not int  and type(rotorR) is not float:
+                self.rotorR = 0
+            else:
+                self.rotorR = rotorR % 26
+
+            context = f'''
+                    {self.name} Decrypting Transmition
+                    
+                    PLUGBOARD CONFIGURATION: {self.plugboard}
+                    LEFT ROTOR: {self.rotorL}
+                    MIDDLE ROTOR: {self.rotorM}
+                    RIGHT ROTOR: {self.rotorR}
+                    '''
+            print(context)
+
+    def encrypt_rotors(self) -> list:
+        '''
+        Take rotors from: 123 and convert to: ABC
+        '''
+        left = self.rotorL % (len(self.alphabet))
+        middle = self.rotorM % (len(self.alphabet))
+        right = self.rotorR % (len(self.alphabet))
+
+        rotorL = self.alphabet[left]
+        rotorM = self.alphabet[middle]
+        rotorR = self.alphabet[right]
+
+        context = f'''
+            {self.name}'s ROTORS HAVE BEEN ENCRYPTED TO
+
+            LEFT ROTOR: {rotorL}
+            MIDDLE ROTOR: {rotorM}
+            RIGHT ROTOTR: {rotorR}
+        '''
+        print(context)
+        self.rotors = [rotorL, rotorM, rotorR]
+        return self.rotors
+
+    def decrypt_rotors(self, rotors):
+        for rotor in range(len(rotors)):
+            if rotor == 0:
+                r1 = rotors[rotor]
+            elif rotor == 1:
+                r2 = rotors[rotor]
+            else:
+                r3 = rotors[rotor]
+
+        self.rotorL = self.alphabet.index(r1)
+        self.rotorM = self.alphabet.index(r2)
+        self.rotorR = self.alphabet.index(r3)
+
+        context = f'''
+            {self.name} HAS DECRYPTED ROTORS FROM:
+
+            LEFT ROTOR: {r1} -> {self.rotorL}
+            MIDDLE ROTOR: {r2} -> {self.rotorM}
+            RIGHT ROTOTR: {r3} -> {self.rotorR}
+        '''
+        print(context)
+
+    def set_rotors(self, left=None, middle=None, right=None):
+        if left != None or type(left) is not str:
+            self.rotorL = left
+        else:
+            self.rotorL = self.rotorL
         
+        if middle != None or type(middle) is not str:
+            self.rotorM = middle
+        else:
+            self.rotorM = self.rotorM
+        
+        if right != None or type(right) is not str:
+            self.rotorR = right
+        else:
+            self.rotorR = self.rotorR
+
+        context = f'''
+            {self.name}'s ROTORS HAVE BEEN SET TO POSITIONS:
+            
+            LEFT ROTOR: {self.rotorL}
+            MIDDLE ROTOR: {self.rotorM}
+            RIGHT ROTOR: {self.rotorR}
+            '''
+        #print(context)
         return context
 
-#        TODO originally line 263
-#     msg_key = machine.process_text('BLA')
+    def view_rotors(self):
+        context = f'''
+            {self.name}'s ROTORS CURRENT POSITIONS:
+            
+            LEFT ROTOR: {self.rotorL}
+            MIDDLE ROTOR: {self.rotorM}
+            RIGHT ROTOR: {self.rotorR}
+            '''
+        #print(context)
+        return context
+    
+    def rotate_rotor_forward(self, rotor) -> list:
+        new_letters = ''.join(self.alphabet)
+        new_letters = list(new_letters)
+        for i in range(rotor):
+            new_letters.insert(0, new_letters[-1])
+            new_letters.pop(-1)
+        return new_letters
+    
+    def rotate_rotor_backward(self, rotor) ->list:
+        new_letters = ''.join(self.alphabet)
+        new_letters = list(new_letters)
+        for i in range(rotor):
+            new_letters.append(new_letters[0])
+            new_letters.pop(0)
+        return new_letters
 
-rotorL = RoterObject('I')
-rotorM = RoterObject('II')
-rotorR = RoterObject('III')
-reflector = ReflectorObject('B')
-plugboard_config = PlugBoardObject('AV BS CG DL FU HZ IN KM OW RX')
+
+    def encrypt_text(self, string) -> str:
+        encrypted_text = []
+        upper = string.upper()
+        string_list = []
+        for i in upper:
+            string_list.append(i)
+        
+        for letter in string_list:
+            if letter in self.plugboard:
+                encrypted_text.append(self.plugboard[letter])
+                self.rotorL +=1
+                
+                if self.rotorL % 26 == 0:
+                    self.rotorM +=1
+                    self.rotorL = 0
+
+                if self.rotorM % 26 == 0 and self.rotorL % 26 == 0 and self.rotorM >= 25:
+                    self.rotorR += 1
+                    self.rotorM = 1
+
+            elif letter not in ascii_uppercase:
+                encrypted_text.append(' ')
+            
+            else:
+                temp_letter = self.rotate_rotor_forward(self.rotorL)[self.alphabet.index(letter)]
+                temp_letter = self.rotate_rotor_forward(self.rotorM)[self.alphabet.index(temp_letter)]
+                temp_letter = self.rotate_rotor_forward(self.rotorR)[self.alphabet.index(temp_letter)]
+                
+                temp_letter = self.reflector[self.alphabet.index(temp_letter)]
+                
+                temp_letter = self.rotate_rotor_backward(self.rotorL)[self.alphabet.index(temp_letter)]
+                temp_letter = self.rotate_rotor_backward(self.rotorM)[self.alphabet.index(temp_letter)]
+                temp_letter = self.rotate_rotor_backward(self.rotorR)[self.alphabet.index(temp_letter)]
+
+                encrypted_text.append(temp_letter)
+        
+        for item in range(0, len(encrypted_text)-1):
+            if encrypted_text[item] not in ascii_uppercase:
+                encrypted_text[item] = ' '
+            # elif:
+                
+        self.encryption = ''.join(encrypted_text)
+        #print(self.encryption)
+        return self.encryption
+    
+    def read_encryption(self, text) -> str:
+        string = text
+
+        new_string = string.replace(' ', 'YY')
+        return new_string
 
 
-e = Enigma_machine(rotorL, rotorM, rotorR, reflector, plugboard_config)
-e.update_from_file('my_enigma_keys.txt')
+class Rotor:
+    def __init__(self, position):
+        '''
+        A wheel of 26 values as seen throught the enigma object
+        each number value returns a letter value.'''
+        # self.name = name
 
-print("Updating Machine...")
-print(e)
+        if position == None and type(position) is not int  and type(position) is not float:
+            self.position = 0
+        else:
+            self.position = position % 26
+    
+    def current_position(self) -> int:
+        #print(self.position)
+        return self.position
 
 
-print('Configuring Enigma...')
-print("Sending TO: ")
-e.set_display('WXC') # set initial rotor positions
-enc_key = e.process_txt('BLU') # encrypt message key
-print(f"Encrypt Display key : {enc_key}")
 
-# e.set_display('BLU') # use message key BLA
-# print('ENCRYPTING text...')
-# ciphertext = e.process_txt('THE RUSSIANS ARE COMING!')
-# print(ciphertext)
+class Plugboard:
+    def __init__(self, plug_board = {'':''}) -> dict:
+        '''
+        dictionary object returns the value of the key stricken.
+        '''
+        if type(plug_board) is not dict:
+            self.plug_board = {'':''}
+        else:
+            self.plug_board = plug_board
+        #print(self.plug_board)
+    
+    def plugs(self):
+        return self.plug_board
 
-print('Configuring Enigma...')
-print("Recieving from: ")
-e.set_display('WXC')
-msg_key = e.process_txt('BLU')
-print(f"Encrypt Display key : {msg_key}")
-# e.set_display(msg_key) # original message key is BLA
-# print("DECRYPTING text...")
-# plaintext = e.process_txt('SDOYYEXLLNCELYYCEOYYSVDNELYY')
-# print(plaintext)
+
+class Reflector:
+    def __init__(self, plug_board=None):
+        '''
+        Recieves a letter durring encryption/ decryption and returns a different letter value
+        '''
+        self.alphabet = list(ascii_uppercase)
+        
+        if type(plug_board) is not dict:
+            plug_board = {'':''}
+            self.plugboard = plug_board
+        else:
+            self.plugboard = plug_board
+            
+        for letter in list(self.plugboard.keys()):
+            if letter in self.alphabet:
+                self.alphabet.remove(letter)
+                self.alphabet.remove(self.plugboard[letter])
+                self.plugboard.update({self.plugboard[letter]:letter})
+                self.reflector = [letter for letter in self.alphabet[::-1]]
+            else:
+                self.reflector = [letter for letter in self.alphabet[::-1]]
+    
+    def reflecting_letters(self):
+        return self.reflector
+
+#todo initialize enigma machine using json
+print('INITIALIZING ENIGMA MACHINE....')
+m1 = Enigma(name='Machine 1', config_file='configs_file.json')
+
+print('ENCRYPTING ROTOR POSITIONS....')
+#todo encrypt rotor positions for other machine to decypher
+rotors = Enigma.encrypt_rotors(m1)
+
+print('ENCRYPTING MESSAGE....')
+#todo initialize message for machine to encrypt
+text_to_encrypt = 'Sup my muhhfyuckin niggaaaa'
+message = m1.encrypt_text(text_to_encrypt)
+print(text_to_encrypt)
+
+print('ENCRYPTED MESSAGE:')
+#todo this removes all whitespace and non ascii values from string and replaces YY
+encryption = m1.read_encryption(message)
+print(encryption)
+
+
+
+print('INITIALIZING ENIGMA MACHINE PARTS....')
+print('INITIALIZING MACHINE ROTORS')
+#todo initialize rotors
+r = Rotor(1)
+position1 = r.current_position()
+r2 = Rotor(11)
+position2 = r2.current_position()
+r3 = Rotor(22)
+position3 = r3.current_position()
+
+print('INITIALIZING MACHINE PLUGBOARD OBJECT.....')
+#todo initialize plugboard according to day transmition
+p = Plugboard({"A": "B", "C": "D", "E": "F"})
+plug_positions = p.plugs()
+
+print('INITIALIZING MACHINE REFLECTOR OBJECT....')
+#todo initialize reflector
+reflect = Reflector(p.plug_board)
+
+print('MACHINE READY FOR SERIALIZATION.')
+#todo initialize enigma machine using initialized objects
+m2 = Enigma('Machine 2', plug_positions, rotorL=position1, rotorM=position2, rotorR=position3, reflector=reflect)
+
+#todo recieve motor encryptions from machine 1 transmition
+print('MACHINE RECIEVING ROTOR ENCRYPTIONS....')
+rotor_decryption = m2.decrypt_rotors(rotors)
+
+#todo set rotors to machine 1 positions
+print('SETTING MACHINES ROTORS....')
+set_rotors = m2.set_rotors(15, 17, 4)
+view_rotors = m2.view_rotors()
+print(view_rotors)
+
+#todo decrypt message
+print('PREPARING MACHINE FOR DECRYPTING MESSAGE....')
+decryption = m2.encrypt_text(message)
+read_text = m2.read_encryption(decryption)
+print(read_text)
