@@ -35,7 +35,7 @@ class Enigma():
                         self.reflector = [letter for letter in self.alphabet[::-1]]
                 
                 context = f'''
-                    {self.name} Decrypting Transmition
+                    {self.name}'s DECRYPTING TRANSMITION:
                     
                     DATE: {self.date}
                     PLUGBOARD CONFIGURATION: {self.plugboard}
@@ -79,7 +79,7 @@ class Enigma():
                 self.rotorR = rotorR % 26
 
             context = f'''
-                    {self.name} Decrypting Transmition
+                    {self.name}'S SETTINGS HAVE BEEN CONFIGURED TO:
                     
                     PLUGBOARD CONFIGURATION: {self.plugboard}
                     LEFT ROTOR: {self.rotorL}
@@ -186,7 +186,6 @@ class Enigma():
             new_letters.pop(0)
         return new_letters
 
-
     def encrypt_text(self, string) -> str:
         encrypted_text = []
         upper = string.upper()
@@ -256,7 +255,6 @@ class Rotor:
         return self.position
 
 
-
 class Plugboard:
     def __init__(self, plug_board = {'':''}) -> dict:
         '''
@@ -307,7 +305,7 @@ rotors = Enigma.encrypt_rotors(m1)
 
 print('ENCRYPTING MESSAGE....')
 #todo initialize message for machine to encrypt
-text_to_encrypt = 'Sup my muhhfyuckin niggaaaa'
+text_to_encrypt = 'hello world, this is my machine'
 message = m1.encrypt_text(text_to_encrypt)
 print(text_to_encrypt)
 
