@@ -24,6 +24,7 @@ class Enigma():
                 self.rotorL = json_string['rotorL']
                 self.rotorM = json_string['rotorM']
                 self.rotorR = json_string['rotorR']
+                f.close()
 
                 for letter in list(self.plugboard.keys()):
                     if letter in self.alphabet:
@@ -351,7 +352,7 @@ rotor_decryption = m2.decrypt_rotors(rotors)
 
 #todo set rotors to machine 1 positions
 print('SETTING MACHINES ROTORS....')
-set_rotors = m2.set_rotors(15, 17, 4)
+set_rotors = m2.set_rotors(11, 3, 7)
 view_rotors = m2.view_rotors()
 print(view_rotors)
 
