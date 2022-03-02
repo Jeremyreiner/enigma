@@ -2,7 +2,7 @@ from string import ascii_uppercase
 import json
 
 class Enigma():
-    def __init__(self, name, plug_board={'':''}, config_file=None, rotorL=None, rotorM=None, rotorR=None, reflector= None):
+    def __init__(self, name, plug_board={'':''}, config_file=None, rotorL=None, rotorM=None, rotorR=None, reflector= None, date=None):
         super().__init__()
         self.name = name
         self.alphabet = list(ascii_uppercase)
@@ -35,7 +35,7 @@ class Enigma():
                         self.reflector = [letter for letter in self.alphabet[::-1]]
                 
                 context = f'''
-                    {self.name}'s DECRYPTING TRANSMITION:
+                    {self.name}'S DECRYPTING TRANSMITION:
                     
                     DATE: {self.date}
                     PLUGBOARD CONFIGURATION: {self.plugboard}
@@ -45,10 +45,15 @@ class Enigma():
                     '''
                 print(context)
 
-        elif rotorL != None and rotorM != None and rotorR != None and plug_board != None and reflector != None:
+        elif rotorL != None and rotorM != None and rotorR != None and plug_board != None and reflector != None and date != None:
             '''
             All objects have been inputed correctly
             '''
+            if type(date) is not int and type(date) is not float:
+                self.date = 0
+            else:
+                self.date = date
+
             if type(plug_board) is not dict:
                 self.plugboard = {'': ''}
             else:
@@ -81,6 +86,7 @@ class Enigma():
             context = f'''
                     {self.name}'S SETTINGS HAVE BEEN CONFIGURED TO:
                     
+                    DATE: {self.date}
                     PLUGBOARD CONFIGURATION: {self.plugboard}
                     LEFT ROTOR: {self.rotorL}
                     MIDDLE ROTOR: {self.rotorM}
@@ -297,7 +303,7 @@ class Reflector:
 
 #todo initialize enigma machine using json
 print('INITIALIZING ENIGMA MACHINE....')
-m1 = Enigma(name='Machine 1', config_file='configs_file.json')
+m1 = Enigma(name='MACHINE 1', config_file='configs_file.json')
 
 print('ENCRYPTING ROTOR POSITIONS....')
 #todo encrypt rotor positions for other machine to decypher
@@ -305,7 +311,7 @@ rotors = Enigma.encrypt_rotors(m1)
 
 print('ENCRYPTING MESSAGE....')
 #todo initialize message for machine to encrypt
-text_to_encrypt = 'hello world, this is my machine'
+text_to_encrypt = 'hello world, check out this enigma code, encryption'
 message = m1.encrypt_text(text_to_encrypt)
 print(text_to_encrypt)
 
@@ -317,7 +323,7 @@ print(encryption)
 
 
 print('INITIALIZING ENIGMA MACHINE PARTS....')
-print('INITIALIZING MACHINE ROTORS')
+print('INITIALIZING MACHINE ROTORS.....')
 #todo initialize rotors
 r = Rotor(1)
 position1 = r.current_position()
@@ -337,7 +343,7 @@ reflect = Reflector(p.plug_board)
 
 print('MACHINE READY FOR SERIALIZATION.')
 #todo initialize enigma machine using initialized objects
-m2 = Enigma('Machine 2', plug_positions, rotorL=position1, rotorM=position2, rotorR=position3, reflector=reflect)
+m2 = Enigma('MACHINE 2',date=30, plug_board=plug_positions, rotorL=position1, rotorM=position2, rotorR=position3, reflector=reflect)
 
 #todo recieve motor encryptions from machine 1 transmition
 print('MACHINE RECIEVING ROTOR ENCRYPTIONS....')
